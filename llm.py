@@ -19,21 +19,30 @@ Be concise.
 """
 
 
-def ask_llm(history):
+def ask_llm(history, system_prompt=None, json_mode=False):
+    """
+    Generic function to communicate with the LLM.
+    """
 
     messages = [
         {
             "role": "system",
-            "content": SYSTEM_PROMPT
+            "content": system_prompt or SYSTEM_PROMPT
         }
     ]
 
     messages.extend(history)
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=messages,
-        temperature=0
-    )
+    request = {
+        "model": MODEL,
+        "messages": messages,
+        "temperature": 0
+    }
+
+    if json_mode:
+        request["response_format"] = {"type": "json_object"}
+
+    # THIS is the correct API call
+    response = client.chat.completions.create(**request)
 
     return response.choices[0].message.content

@@ -5,33 +5,25 @@ from telegram.ext import (
     ContextTypes,
     filters,
 )
+from agent import agent
 
 from config import TELEGRAM_TOKEN
-from llm import ask_llm
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Receives a user's message,
-    sends it to Groq,
-    returns the response.
-    """
 
+    chat_id = update.effective_chat.id
     user_message = update.message.text
 
-    print(f"User: {user_message}")
-
     try:
-        answer = ask_llm(user_message)
-
-        print(f"Assistant: {answer}")
+        answer = agent.process_message(chat_id, user_message)
 
         await update.message.reply_text(answer)
 
     except Exception as e:
         print(e)
-        await update.message.reply_text("Something went wrong.")
 
+        await update.message.reply_text("Internal Error")
 
 def main():
 
